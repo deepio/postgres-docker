@@ -6,6 +6,5 @@ services:
       context: .
       dockerfile: Dockerfile
     image: "d33pi0/postgres-docker:12.2"
-    image: postgres
     environment:
       POSTGRES_PASSWORD: example
