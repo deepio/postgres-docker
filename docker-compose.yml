@@ -2,9 +2,13 @@ version: '3.1'
 services:
 
   db:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: "d33pi0/postgres-docker:12.2"
+    image: "d33pi0/postgres-docker:latest"
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: example
+    volumes:
+      - "postgres_data:/backups"
+
+volumes:
+  postgres_data:
