@@ -1,4 +1,4 @@
-FROM postgres:latest
+FROM postgres:11.7-alpine
 EXPOSE 5432
 
 COPY ./maintenance /usr/local/bin/maintenance
