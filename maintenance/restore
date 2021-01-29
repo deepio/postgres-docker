@@ -6,9 +6,10 @@ set -o xtrace # Print commands and their arguments as they are executed.
 ## Restore database from a backup.
 ##
 ## Parameters:
-##     <1> filename of an existing backup.
+##     <1> filename of an existing backup. (Optional)
 ##
 ## Usage:
+##     $ docker-compose exec postgres restore
 ##     $ docker-compose exec postgres restore <1>
 
 
@@ -18,9 +19,22 @@ source "${working_dir}/_functions/messages.sh"
 
 
 if [[ -z ${1+x} ]]; then
-    message_error "Backup filename is not specified yet it is a required parameter. Make sure you provide one and try again."
-    exit 1
+
+    shopt -s nullglob
+    files=(*)
+    if (( "${#files[@]}" >= 5 )); then
+      # When restore is called without arguments, search for the latest backup and re-execute itself.
+      latest=$(find $BACKUP_DIR_PATH -type f -printf "%T@ %p\n" 2>/dev/null | sort -n | cut -d' ' -f 2- | tail -n 1)
+      most_recent_backup=".${latest:${#BACKUP_DIR_PATH}:${#latest}}"
+      $0 $most_recent_backup
+    else
+      message_error "Not enough backups in the folder to automatically restore from the latest backup."
+      exit 1
+    fi
+    shopt -u nullglob
+    exit 0
 fi
+
 backup_filename="${BACKUP_DIR_PATH}/${1}"
 if [[ ! -f "${backup_filename}" ]]; then
     message_error "No backup with the specified filename found. Check out the 'backups' maintenance script output to see if there is one and try again."
